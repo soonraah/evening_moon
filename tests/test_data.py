@@ -9,8 +9,6 @@ def mock_http_request_value(filename):
     f = data.ROOT_DIR + '/tests/resources/' + filename
     return json.load(open(f, 'r'))
 
-# /Users/sakamotoakira/repos/evening_moon/tests/resources/content-get_fund_list.json
-# /Users/sakamotoakira/repos/evening_moon/evening_moon/tests/resources/content-get_fund_list.json
 
 class TestDataPy(unittest.TestCase):
 
