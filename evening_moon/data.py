@@ -18,8 +18,7 @@ def get_fund_list() -> [dict]:
 def get_reference_price(fund_code: str, start_period=None, end_period=None) -> [dict]:
     postdata = None
     if start_period and end_period:
-        built = _build_post_data(start_period, end_period)
-        postdata = urllib.parse.urlencode(built).encode('utf8')
+        postdata = _build_post_data(start_period, end_period)
     elif start_period or end_period:
         raise NotImplementedError("now we need to specifiy both. start_period:{}, end_period:{}".format(start_period, end_period))
 
@@ -75,7 +74,7 @@ def _build_post_data(start_period: datetime.date,
     """see: https://github.com/soonraah/evening_moon/issues/3#issuecomment-354466415"""
     (from_yyyy, from_mm, from_dd) = datetime.date.strftime(start_period, "%Y-%m-%d").split('-')
     (to_yyyy, to_mm, to_dd) = datetime.date.strftime(end_period, "%Y-%m-%d").split('-')
-    return dict(
+    dict_ = dict(
         in_term_from_yyyy=from_yyyy,
         in_term_from_mm=from_mm,
         in_term_from_dd=from_dd,
@@ -85,6 +84,7 @@ def _build_post_data(start_period: datetime.date,
         dispRows=365*20,
         page=0
     )
+    return urllib.parse.urlencode(dict_).encode('utf8')
 
 
 def _normalize_ascii(s: str) -> str:

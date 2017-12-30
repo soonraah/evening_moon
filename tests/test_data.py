@@ -98,17 +98,7 @@ class TestDataPy(unittest.TestCase):
         from_ = datetime.date(2017, 12, 1)
         to = datetime.date(2018, 2, 1)
         got = data._build_post_data(from_, to)
-        self.assertDictEqual(got, {
-            'in_term_from_yyyy': '2017',
-            'in_term_from_mm': '12',
-            'in_term_from_dd': '01',
-            'in_term_to_yyyy': '2018',
-            'in_term_to_mm': '02',
-            'in_term_to_dd': '01',
-            'dispRows': 7300,
-            'page': 0
-        })
-
+        self.assertEqual(got, b'in_term_from_yyyy=2017&in_term_from_mm=12&in_term_from_dd=01&in_term_to_yyyy=2018&in_term_to_mm=02&in_term_to_dd=01&dispRows=7300&page=0')
 
 
 if __name__ == '__main__':
