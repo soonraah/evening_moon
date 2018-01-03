@@ -82,7 +82,9 @@ class TestDataPy(unittest.TestCase):
     @mock.patch('evening_moon.data._http_request',
                 return_value=mock_http_request_value('content-get_reference_price.csv'))
     def test_get_reference_price(self, m):
-        got = data.get_reference_price('12345678')
+        got = data.get_reference_price('12345678',
+                                       datetime.date(2017, 11, 26),
+                                       datetime.date(2017, 12, 26))
         self.assertEqual(len(got), 22)  # 営業日数分のレコードが返る
         self.assertDictEqual(got[0], {
             'date': datetime.datetime(2017, 12, 26, 0, 0),
@@ -90,6 +92,13 @@ class TestDataPy(unittest.TestCase):
             'diff_prev_day': -31.0,
             'total_net_asset': 292000000.0
         })
+
+
+    def test__build_post_data(self):
+        from_ = datetime.date(2017, 12, 1)
+        to = datetime.date(2018, 2, 1)
+        got = data._build_post_data(from_, to)
+        self.assertEqual(got, b'in_term_from_yyyy=2017&in_term_from_mm=12&in_term_from_dd=01&in_term_to_yyyy=2018&in_term_to_mm=02&in_term_to_dd=01&dispRows=7300&page=0')
 
 
 if __name__ == '__main__':
