@@ -6,8 +6,8 @@ jobs:
     working_directory: ~/repo
     steps:
       - run:
-        name: Install dependencies
-        command: python setup.py install
+          name: Install dependencies
+          command: python setup.py install
       - run:
-        name: Run tests
-        command: python setup.py test
+          name: Run tests
+          command: python setup.py test
