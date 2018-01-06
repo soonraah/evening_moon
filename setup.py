@@ -17,6 +17,7 @@ setup(
     url='https://github.com/soonraah/evening_moon',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=['nose'],
-    dependency_links=[]
+    install_requires=['mock'],
+    dependency_links=[],
+    test_suite='tests'
 )
