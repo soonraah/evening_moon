@@ -17,7 +17,7 @@ setup(
     url='https://github.com/soonraah/evening_moon',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=['mock'],
+    install_requires=['mock', 'matplotlib', 'pandas', 'numpy'],
     dependency_links=[],
     test_suite='tests'
 )
