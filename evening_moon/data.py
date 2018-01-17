@@ -4,6 +4,7 @@ import json
 import datetime
 import urllib.request
 import urllib.parse
+from functools import lru_cache
 
 
 ROOT_DIR = os.path.abspath(__file__ + '/../../')
@@ -15,6 +16,7 @@ def get_fund_list() -> [dict]:
     return json.loads(body)['records']
 
 
+@lru_cache(maxsize=32)
 def get_reference_price(fund_code: str, start_period=None, end_period=None) -> [dict]:
     postdata = None
     if start_period and end_period:
