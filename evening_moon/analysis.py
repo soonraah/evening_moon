@@ -2,7 +2,6 @@ import datetime
 import re
 import time
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
@@ -43,15 +42,6 @@ def get_price_data_frame(fund_codes: list,
     return df_price.sort_index()
 
 
-def show_price_chart(fund_codes: list,
-                     start_period: datetime.date = None,
-                     end_period: datetime.date = None) -> None:
-    df_price = get_price_data_frame(fund_codes, start_period, end_period)
-    ax = df_price.plot(title='Reference Price of Funds', grid=True)
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Reference Price [yen]')
-
-
 def calc_rate_of_return(fund_codes: list,
                         start_period: datetime.date = None,
                         end_period: datetime.date = None,
@@ -70,16 +60,6 @@ def calc_rate_of_return(fund_codes: list,
         sers[fund_code] = df_shifted.apply(lambda x: (x[1] - x[0]) / x[0], axis=1)
 
     return pd.concat(sers, axis=1).dropna()
-
-
-def show_rate_of_return_chart(fund_codes: list,
-                              start_period: datetime.date = None,
-                              end_period: datetime.date = None,
-                              investment_period_days: int = 5) -> None:
-    df_return = calc_rate_of_return(fund_codes, start_period, end_period, investment_period_days)
-    ax = df_return.plot(title='Rate of Return of Funds', grid=True)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Rate of Return")
 
 
 def calc_mean_std(fund_codes: list,
@@ -103,7 +83,7 @@ def _calc_portfolio_mean_std(weights: np.array, mean: np.array, cov: np.ndarray)
     return p_mean, np.sqrt(p_var)
 
 
-def _calc_random_weight_portfolios(num_iter: int, mean: np.array, cov: np.ndarray) -> np.ndarray:
+def calc_random_weight_portfolios(num_iter: int, mean: np.array, cov: np.ndarray) -> np.ndarray:
     ret = []
     for i in range(num_iter):
         r = np.random.rand(mean.size)
@@ -111,35 +91,3 @@ def _calc_random_weight_portfolios(num_iter: int, mean: np.array, cov: np.ndarra
         p_mean, p_std = _calc_portfolio_mean_std(weights, mean, cov)    # その重みポートフォリオの場合の平均・共分散を計算
         ret.append([p_mean, p_std])
     return np.array(ret).transpose()
-
-
-def show_mean_std_diagram(fund_codes: list,
-                          start_period: datetime.date = None,
-                          end_period: datetime.date = None,
-                          investment_period_days: int = 5,
-                          num_random_feasible_set: int = 0) -> None:
-    df_return = calc_rate_of_return(fund_codes, start_period, end_period, investment_period_days)
-    matrix = df_return.as_matrix()
-
-    mean = matrix.mean(axis=0)
-    std = matrix.std(axis=0, ddof=0)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    plt.grid()
-
-    # ランダムな実現可能集合の要素数が正の場合はそれらもポートフォリオとして表示する
-    if num_random_feasible_set > 0:
-        cov = np.cov(matrix, rowvar=False, ddof=0)
-        portfolio_mean_std_weight = _calc_random_weight_portfolios(num_random_feasible_set, mean, cov)
-        ax.scatter(x=portfolio_mean_std_weight[1], y=portfolio_mean_std_weight[0], c='lightskyblue', s=5, marker='o',
-                   label='random feasible set')
-
-    ax.scatter(x=std, y=mean, c='navy', s=16, marker='x', label='fund')
-    ax.legend()
-
-    plt.xlabel('std')
-    plt.ylabel('mean')
-    plt.title('Mean-Standard Deviation Diagram')
-    plt.show()
