@@ -68,7 +68,9 @@ def calc_mean_std(fund_codes: list,
     df_return = calc_rate_of_return(fund_codes, start_period, end_period, investment_period_days)
     ser_mean = df_return.mean()
     ser_std = df_return.std(ddof=0)
-    return pd.concat({'mean': ser_mean, 'std': ser_std}, axis=1).sort_index()
+    df_ret = pd.concat({'mean': ser_mean, 'std': ser_std}, axis=1).sort_index()
+    df_ret.index.name = 'fund_code'
+    return df_ret
 
 
 def _calc_portfolio_mean_std(weights: np.array, mean: np.array, cov: np.ndarray) -> tuple:
