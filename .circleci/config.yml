@@ -13,6 +13,9 @@ jobs:
             - pip-packages-v1-{{ .Branch }}-
             - pip-packages-v1-
       - run:
+          name: Install dependencies
+          command: pipenv install --dev
+      - run:
           name: Run tests
           command: pipenv run nosetests -v
       - save_cache:
