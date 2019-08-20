@@ -62,7 +62,7 @@ def _http_request(url: str, **kw) -> (str, dict, str):
 
     # 開発用: 環境変数にDEBUGを入れておくとレスポンスをキャッシュする
     if os.getenv('DEBUG'):
-        filename = '{}/evening_moon/debug/{}'.format(ROOT_DIR, _normalize_ascii(url))
+        filename = '{}/evmoon/debug/{}'.format(ROOT_DIR, _normalize_ascii(url))
         if not os.path.exists(filename):
             with open(filename, 'w') as f:
                 json.dump(r(), f, indent=2)
@@ -108,5 +108,5 @@ if __name__ == '__main__':
                   datetime.date(2018, 2, 1)))
     elif sys.argv[1] == 'clear-debug':
         import glob
-        for filename in glob.glob(ROOT_DIR + '/evening_moon/debug/site*'):
+        for filename in glob.glob(ROOT_DIR + '/evmoon/debug/site*'):
             os.remove(filename)

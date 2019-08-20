@@ -5,7 +5,7 @@ import time
 import pandas as pd
 import numpy as np
 
-from evening_moon import data
+from evmoon import data
 
 REQUEST_INTERVAL_SEC = 2
 
