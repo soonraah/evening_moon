@@ -2,7 +2,7 @@ import mock
 import unittest
 import json
 import datetime
-from evening_moon import data
+from evmoon import data
 
 
 def mock_http_request_value(filename):
@@ -12,7 +12,7 @@ def mock_http_request_value(filename):
 
 class TestDataPy(unittest.TestCase):
 
-    @mock.patch('evening_moon.data._http_request',
+    @mock.patch('evmoon.data._http_request',
                 return_value=mock_http_request_value('content-get_fund_list.json'))
     def test_get_fund_list(self, m):
         got = data.get_fund_list()
@@ -79,7 +79,7 @@ class TestDataPy(unittest.TestCase):
             }
             """))
 
-    @mock.patch('evening_moon.data._http_request',
+    @mock.patch('evmoon.data._http_request',
                 return_value=mock_http_request_value('content-get_reference_price.csv'))
     def test_get_reference_price(self, m):
         got = data.get_reference_price('12345678',

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from evening_moon import analysis
+from evmoon import analysis
 
 DATES = [datetime.date(2017, 1, 4),
          datetime.date(2017, 1, 5),
@@ -30,7 +30,7 @@ def mock_get_reference_price(fund_code: str, start_period=None, end_period=None)
         return None
 
 
-@mock.patch('evening_moon.data.get_reference_price', new=mock_get_reference_price)
+@mock.patch('evmoon.data.get_reference_price', new=mock_get_reference_price)
 class TestAnalysisPy(unittest.TestCase):
 
     def test_get_price_data_frame(self):
