@@ -10,8 +10,8 @@ from evmoon import data
 REQUEST_INTERVAL_SEC = 2
 
 
-def get_fund_list_data_frame() -> pd.DataFrame:
-    fund_list = data.get_fund_list()
+def get_fund_list_data_frame(fund_source: data.FundSource) -> pd.DataFrame:
+    fund_list = data.get_fund_list(fund_source)
     data_frame = pd.DataFrame(fund_list)
     column_names = list(data_frame)
     rename_dict = {name: _camel_to_snake(name) for name in column_names}
