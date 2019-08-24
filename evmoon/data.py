@@ -2,6 +2,7 @@ import os
 import re
 import json
 import datetime
+from enum import Enum
 import logging
 import time
 import urllib.request
@@ -12,34 +13,41 @@ from functools import lru_cache
 ROOT_DIR = os.path.abspath(__file__ + '/../../')
 
 REQUEST_INTERVAL_SEC = 2
+MAX_PAGE_SIZE = 100
 
 
-def get_ideco_fund_list() -> [dict]:
-    url = 'https://site0.sbisec.co.jp/marble/insurance/dc401k/search/dc401ksearch/search.do'
-    (_, _, body) = _http_request(url)
-    return json.loads(body)['records']
+class FundSource(Enum):
+    IDECO = 1               # iDeCo: https://site0.sbisec.co.jp/marble/insurance/dc401k/search/dc401ksearch.do?
+    INVESTMENT_TRUST = 2    # 投資信託: https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch.do?
 
 
-def get_investment_trust_fund_list() -> [dict]:
-    max_page_size = 100
-    total_page = 1000
+def get_fund_list(fund_source: FundSource) -> [dict]:
+    total_page = MAX_PAGE_SIZE
     page_no = 0
     results = []
 
-    while page_no <= min(total_page, max_page_size):
-        url = 'https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch/search.do?pageNo={}&fundName=&pageRows' \
-              '=100&tabName=base&sortColumn=090&sortOrder=1&unyouColumnName=totalReturnColumns&hitLimit=0' \
-              '&searchWordsMode=1&commission=X&trustCharge=X&yield=X&sharpRatio=X&sigma=X&flow=X&asset=X' \
-              '&standardPrice=X&redemption=X&period=X&company=--&budget=1'.format(page_no)
-        (_, _, body) = _http_request(url)
+    if fund_source == FundSource.IDECO:
+        url = 'https://site0.sbisec.co.jp/marble/insurance/dc401k/search/dc401ksearch/search.do?pageNo={' \
+              'page_no}&pageRows=100'
+    elif fund_source == FundSource.INVESTMENT_TRUST:
+        url = 'https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch/search.do?pageNo={' \
+              'page_no}&fundName=&pageRows=100&tabName=base&sortColumn=090&sortOrder=1&unyouColumnName' \
+              '=totalReturnColumns&hitLimit=0&searchWordsMode=1&commission=X&trustCharge=X&yield=X&sharpRatio=X&sigma' \
+              '=X&flow=X&asset=X&standardPrice=X&redemption=X&period=X&company=--&budget=1'
+    else:
+        raise RuntimeError('Unsupported fund source ({}) is given.'.format(fund_source))
+
+    while page_no <= min(total_page, MAX_PAGE_SIZE):
+        cur_url = url.format(page_no=page_no)
+        (_, _, body) = _http_request(cur_url)
         loaded_body = json.loads(body)
         results.extend(loaded_body['records'])
 
-        total_page = loaded_body['pager']['totalPage']
+        total_page = loaded_body['pager']['totalPage']  # 総ページ数ではなく最後のページ番号 (0 start) が入る
         page_no += 1
 
         time.sleep(REQUEST_INTERVAL_SEC)
-        logging.info("Got fund page {}/{}".format(page_no, total_page))
+        logging.info("Got fund page {}/{}".format(page_no, total_page + 1))
 
     return results
 
