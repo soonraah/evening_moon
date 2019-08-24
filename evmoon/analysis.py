@@ -18,7 +18,7 @@ class FundSource(Enum):
 
 def get_fund_list_data_frame(fund_source: FundSource = FundSource.IDECO) -> pd.DataFrame:
     if fund_source == FundSource.IDECO:
-        fund_list = data.get_fund_list()
+        fund_list = data.get_ideco_fund_list()
     elif fund_source == FundSource.INVESTMENT_TRUST:
         fund_list = data.get_investment_trust_fund_list()
     else:

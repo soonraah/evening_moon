@@ -15,7 +15,7 @@ class TestDataPy(unittest.TestCase):
     @mock.patch('evmoon.data._http_request',
                 return_value=mock_http_request_value('content-get_fund_list.json'))
     def test_get_fund_list(self, m):
-        got = data.get_fund_list()
+        got = data.get_ideco_fund_list()
         self.assertEqual(len(got), 63)
         self.assertDictEqual(got[0], json.loads("""
             {

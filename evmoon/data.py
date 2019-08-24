@@ -14,7 +14,7 @@ ROOT_DIR = os.path.abspath(__file__ + '/../../')
 REQUEST_INTERVAL_SEC = 2
 
 
-def get_fund_list() -> [dict]:
+def get_ideco_fund_list() -> [dict]:
     url = 'https://site0.sbisec.co.jp/marble/insurance/dc401k/search/dc401ksearch/search.do'
     (_, _, body) = _http_request(url)
     return json.loads(body)['records']
@@ -129,7 +129,7 @@ def _normalize_ascii(s: str) -> str:
 if __name__ == '__main__':
     import sys
     if len(sys.argv) == 1:
-        print(get_fund_list(),
+        print(get_ideco_fund_list(),
               get_reference_price(
                   '64311081',
                   datetime.date(2015, 12, 1),
