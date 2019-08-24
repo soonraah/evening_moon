@@ -1,4 +1,5 @@
 import datetime
+from enum import Enum
 import re
 import time
 
@@ -10,8 +11,19 @@ from evmoon import data
 REQUEST_INTERVAL_SEC = 2
 
 
-def get_fund_list_data_frame() -> pd.DataFrame:
-    fund_list = data.get_fund_list()
+class FundSource(Enum):
+    IDECO = 1               # iDeCo: https://site0.sbisec.co.jp/marble/insurance/dc401k/search/dc401ksearch.do?
+    INVESTMENT_TRUST = 2    # 投資信託: https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch.do?
+
+
+def get_fund_list_data_frame(fund_source: FundSource = FundSource.IDECO) -> pd.DataFrame:
+    if fund_source == FundSource.IDECO:
+        fund_list = data.get_fund_list()
+    elif fund_source == FundSource.INVESTMENT_TRUST:
+        fund_list = data.get_investment_trust_fund_list()
+    else:
+        raise RuntimeError('Unsupported fund source ({}) is given.'.format(fund_source))
+
     data_frame = pd.DataFrame(fund_list)
     column_names = list(data_frame)
     rename_dict = {name: _camel_to_snake(name) for name in column_names}
