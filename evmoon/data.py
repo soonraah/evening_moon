@@ -2,6 +2,8 @@ import os
 import re
 import json
 import datetime
+import logging
+import time
 import urllib.request
 import urllib.parse
 from functools import lru_cache
@@ -9,11 +11,37 @@ from functools import lru_cache
 
 ROOT_DIR = os.path.abspath(__file__ + '/../../')
 
+REQUEST_INTERVAL_SEC = 2
+
 
 def get_fund_list() -> [dict]:
     url = 'https://site0.sbisec.co.jp/marble/insurance/dc401k/search/dc401ksearch/search.do'
     (_, _, body) = _http_request(url)
     return json.loads(body)['records']
+
+
+def get_investment_trust_fund_list() -> [dict]:
+    max_page_size = 100
+    total_page = 1000
+    page_no = 0
+    results = []
+
+    while page_no <= min(total_page, max_page_size):
+        url = 'https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch/search.do?pageNo={}&fundName=&pageRows' \
+              '=100&tabName=base&sortColumn=090&sortOrder=1&unyouColumnName=totalReturnColumns&hitLimit=0' \
+              '&searchWordsMode=1&commission=X&trustCharge=X&yield=X&sharpRatio=X&sigma=X&flow=X&asset=X' \
+              '&standardPrice=X&redemption=X&period=X&company=--&budget=1'.format(page_no)
+        (_, _, body) = _http_request(url)
+        loaded_body = json.loads(body)
+        results.extend(loaded_body['records'])
+
+        total_page = loaded_body['pager']['totalPage']
+        page_no += 1
+
+        time.sleep(REQUEST_INTERVAL_SEC)
+        logging.info("Got fund page {}/{}".format(page_no, total_page))
+
+    return results
 
 
 @lru_cache(maxsize=32)

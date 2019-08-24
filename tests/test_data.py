@@ -80,6 +80,18 @@ class TestDataPy(unittest.TestCase):
             """))
 
     @mock.patch('evmoon.data._http_request',
+                side_effect=[mock_http_request_value('content-get_investment_trust_fund_list-0.json'),
+                             mock_http_request_value('content-get_investment_trust_fund_list-1.json'),
+                             mock_http_request_value('content-get_investment_trust_fund_list-2.json')],
+                autospec=True)
+    def test_get_investment_trust_fund_list(self, m):
+        got = data.get_investment_trust_fund_list()
+        self.assertEqual(m.call_count, 3)
+        self.assertEqual(len(got), 300)
+        self.assertEqual(got[0]['fundCode'], '2931113C')
+        self.assertEqual(got[-1]['fundCode'], '7931306C')
+
+    @mock.patch('evmoon.data._http_request',
                 return_value=mock_http_request_value('content-get_reference_price.csv'))
     def test_get_reference_price(self, m):
         got = data.get_reference_price('12345678',
