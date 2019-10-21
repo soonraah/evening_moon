@@ -1,6 +1,7 @@
 import datetime
 import re
 import time
+from typing import Union
 
 import pandas as pd
 import numpy as np
@@ -10,7 +11,16 @@ from evmoon import data
 REQUEST_INTERVAL_SEC = 2
 
 
-def get_fund_list_data_frame(fund_source: data.FundSource) -> pd.DataFrame:
+def get_fund_list_data_frame(fund_source: Union[data.FundSource, str]) -> pd.DataFrame:
+    if isinstance(fund_source, data.FundSource):
+        pass
+    elif fund_source == 'ideco':
+        fund_source = data.FundSource.IDECO
+    elif fund_source == 'investment_trust':
+        fund_source = data.FundSource.INVESTMENT_TRUST
+    else:
+        raise RuntimeError("Fund sourse '{}' is not supported.".format(fund_source))
+
     fund_list = data.get_fund_list(fund_source)
     data_frame = pd.DataFrame(fund_list)
     column_names = list(data_frame)
