@@ -13,6 +13,7 @@ Sphinx = "*"
 matplotlib = "*"
 pandas = "*"
 numpy = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.6"
