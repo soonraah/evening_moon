@@ -121,3 +121,23 @@ class TestAnalysisPy(unittest.TestCase):
         expected = np.array([[expected_mean], [expected_std]])
 
         np.testing.assert_almost_equal(actual, expected, decimal=7)
+
+    def test_optimize_weights(self):
+        # -- setup --
+        mean = np.array([-0.05536161,  0.03207377, -0.06907617])
+        cov = np.array([[0.00567842, 0.00454002, 0.00311522],
+                        [0.00454002, 0.00482886, 0.00325488],
+                        [0.00311522, 0.00325488, 0.00340771]])
+
+        # -- exercise --
+        # actual = analysis.calc_weights_by_two_fund_separation_theorem(0.01, mean, cov)
+        (actual_weights, actual_stddev) = analysis.optimize_weights(0.01, mean, cov, True)
+
+        # -- verify --
+        # 下記リンクの方法で計算して得られた値
+        # (非負制約の付け方がわからないためこの方法での実装はしていない)
+        # https://ja.wikipedia.org/wiki/%E6%8A%95%E8%B3%87%E4%BF%A1%E8%A8%97%E5%AE%9A%E7%90%86#%E7%84%A1%E3%83%AA%E3%82%B9%E3%82%AF%E8%B3%87%E7%94%A3%E3%81%8C%E3%81%AA%E3%81%84%E5%A0%B4%E5%90%88
+        expected_weights = [-0.31652817, 0.82468872, 0.49183945]
+
+        for i in range(len(expected_weights)):
+            self.assertAlmostEqual(expected_weights[i], actual_weights[i], places=3)
