@@ -1,16 +1,27 @@
 import datetime
 import re
 import time
+from typing import Tuple, Union
 
 import pandas as pd
 import numpy as np
+from scipy import optimize
 
 from evmoon import data
 
 REQUEST_INTERVAL_SEC = 2
 
 
-def get_fund_list_data_frame(fund_source: data.FundSource) -> pd.DataFrame:
+def get_fund_list_data_frame(fund_source: Union[data.FundSource, str]) -> pd.DataFrame:
+    if isinstance(fund_source, data.FundSource):
+        pass
+    elif fund_source == 'ideco':
+        fund_source = data.FundSource.IDECO
+    elif fund_source == 'investment_trust':
+        fund_source = data.FundSource.INVESTMENT_TRUST
+    else:
+        raise RuntimeError("Fund sourse '{}' is not supported.".format(fund_source))
+
     fund_list = data.get_fund_list(fund_source)
     data_frame = pd.DataFrame(fund_list)
     column_names = list(data_frame)
@@ -92,3 +103,55 @@ def calc_random_weight_portfolios(num_iter: int, mean: np.array, cov: np.ndarray
         p_mean, p_std = _calc_portfolio_mean_std(weights, mean, cov)    # その重みポートフォリオの場合の平均・共分散を計算
         ret.append([p_mean, p_std])
     return np.array(ret).transpose()
+
+
+def optimize_weights(expected_rate_of_returns: float,
+                     mean: np.ndarray,
+                     cov: np.ndarray,
+                     can_sell_short: bool = False) -> Tuple[np.ndarray, float]:
+    num_funds = mean.shape[0]
+
+    # 初期値
+    weights0 = np.full(num_funds, 1.0 / num_funds)
+
+    # 空売りできない場合は非負制約を付与
+    bounds = None if can_sell_short else optimize.Bounds(lb=0.0, ub=np.inf)
+
+    # 目的関数
+    def objective_function(weights):
+        sum = 0.0
+        it = np.nditer(cov, flags=['multi_index'])
+        while not it.finished:
+            i, j = it.multi_index
+            sum += weights[i] * weights[j] * it[0]
+            it.iternext()
+        return np.sqrt(sum)
+
+    # 重み和の制約
+    def weight_sum_constraint(weights):
+        return np.sum(weights) - 1.0
+
+    # ポートフォリオリターンの制約
+    def portfolio_return_constraint(weights):
+        return np.dot(weights, mean) - expected_rate_of_returns
+
+    constraints = [
+        {'type': 'eq', 'fun': weight_sum_constraint},
+        {'type': 'eq', 'fun': portfolio_return_constraint}
+    ]
+
+    # 最適化の実行
+    optimize_result = optimize.minimize(fun=objective_function,
+                                        x0=weights0,
+                                        method='SLSQP',
+                                        bounds=bounds,
+                                        constraints=constraints,
+                                        options={'maxiter': 1000})
+
+    if not optimize_result.success:
+        msg = 'Optimization failed. expected_rate_of_returns may not be appropriate. status={}, message="{}"'.format(
+            optimize_result.status, optimize_result.message)
+        raise RuntimeError(msg)
+
+    # ファンドごとの重みとその重みのときのリスク (標準偏差) を返す
+    return optimize_result.x, optimize_result.fun
