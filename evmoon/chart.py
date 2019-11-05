@@ -59,7 +59,7 @@ def show_mean_std_diagram(fund_codes: list,
     ax.scatter(x=stddev, y=mean, c='navy', s=16, marker='x', label='fund')
 
     for i, fund_code in enumerate(fund_codes):
-        ax.annotate(fund_code, stddev[i], mean[i])
+        ax.annotate(fund_code, xy=(stddev[i], mean[i]))
 
     ax.legend()
 
