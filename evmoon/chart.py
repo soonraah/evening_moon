@@ -55,7 +55,7 @@ def show_mean_std_diagram(fund_codes: list,
                    label='random feasible set')
 
     # 各ファンドをプロット
-    stddev = np.power(cov.diagonal(), 2)
+    stddev = np.sqrt(cov.diagonal())
     ax.scatter(x=stddev, y=mean, c='navy', s=16, marker='x', label='fund')
 
     for i, fund_code in enumerate(fund_codes):
